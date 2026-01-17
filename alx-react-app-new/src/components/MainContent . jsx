@@ -1,8 +1,8 @@
 function MainContent() {
   return (
-    <main style={{ padding: '20px', backgroundColor: '#eef', minHeight: '200px' }}>
-      <p style={{ fontSize: '18px', lineHeight: '1.6' }}>
-        Welcome to my React app! Here are some of my favorite cities.
+    <main style={{ backgroundColor: '#f9f9f9', padding: '20px', minHeight: '200px' }}>
+      <p style={{ fontSize: '1.2rem', color: '#333' }}>
+        Welcome to my React app! Here I share my favorite cities and why I love them.
       </p>
     </main>
   );
