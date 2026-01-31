@@ -1,21 +1,61 @@
-import { useState } from 'react';
-import SearchBar from './components/SearchBar';
-import UserCard from './components/UserCard';
-import { fetchUser } from './services/githubService';
+import { useState } from "react";
+import { fetchUserData } from "./services/githubService";
 
 function App() {
+  const [username, setUsername] = useState("");
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSearch = async (username) => {
-    const data = await fetchUser(username);
-    setUser(data);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setUser(null);
+
+    try {
+      const data = await fetchUserData(username);
+      setUser(data);
+    } catch (err) {
+      setError("Looks like we can't find the user");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div>
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h1>GitHub User Search</h1>
-      <SearchBar onSearch={handleSearch} />
-      <UserCard user={user} />
+      <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+        <input
+          type="text"
+          placeholder="Enter GitHub username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={{ padding: "8px", width: "250px" }}
+        />
+        <button type="submit" style={{ padding: "8px 12px", marginLeft: "10px" }}>
+          Search
+        </button>
+      </form>
+
+      {loading && <p>Loading...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {user && (
+        <div>
+          <img
+            src={user.avatar_url}
+            alt={user.login}
+            width="120"
+            style={{ borderRadius: "50%" }}
+          />
+          <h2>{user.name || user.login}</h2>
+          <p>{user.bio}</p>
+          <a href={user.html_url} target="_blank" rel="noopener noreferrer">
+            View Profile
+          </a>
+        </div>
+      )}
     </div>
   );
 }
