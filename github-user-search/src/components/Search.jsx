@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { advancedUserSearch } from "../services/githubService";
+import { fetchUserData, advancedUserSearch } from "../services/githubService";
 
 function Search() {
   const [username, setUsername] = useState("");
   const [location, setLocation] = useState("");
   const [minRepos, setMinRepos] = useState("");
   const [users, setUsers] = useState([]);
+  const [singleUser, setSingleUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -14,10 +15,18 @@ function Search() {
     setLoading(true);
     setError("");
     setUsers([]);
+    setSingleUser(null);
 
     try {
-      const results = await advancedUserSearch(username, location, minRepos);
-      setUsers(results);
+      
+      if (username && !location && !minRepos) {
+        const data = await fetchUserData(username);
+        setSingleUser(data);
+      } else {
+        
+        const results = await advancedUserSearch(username, location, minRepos);
+        setUsers(results);
+      }
     } catch (err) {
       setError("Looks like we cant find the user");
     } finally {
@@ -38,7 +47,7 @@ function Search() {
         />
         <input
           type="text"
-          placeholder="Location (e.g. Lagos)"
+          placeholder="Location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           className="w-full p-2 border rounded"
@@ -60,6 +69,26 @@ function Search() {
 
       {loading && <p className="mt-4 text-center">Loading...</p>}
       {error && <p className="mt-4 text-center text-red-500">{error}</p>}
+
+    
+      {singleUser && (
+        <div className="mt-6 text-center">
+          <img
+            src={singleUser.avatar_url}
+            alt={singleUser.login}
+            className="w-24 h-24 rounded-full mx-auto"
+          />
+          <h2 className="font-semibold mt-2">{singleUser.name || singleUser.login}</h2>
+          <a
+            href={singleUser.html_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 underline"
+          >
+            View Profile
+          </a>
+        </div>
+      )}
 
       <div className="mt-6 space-y-4">
         {users.map((user) => (
